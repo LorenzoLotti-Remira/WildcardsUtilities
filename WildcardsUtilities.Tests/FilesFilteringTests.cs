@@ -191,7 +191,7 @@ public class FilesFilteringTests
         var root = $"{Environment.CurrentDirectory}/TestRootFolder";
 
         FilesFiltering
-            .GetFiles(filters, $"{Environment.CurrentDirectory}/TestRootFolder")
+            .GetFiles(filters, root)
             .Select(file => Path.GetRelativePath(root, file.FullName).Replace('\\', '/'))
             .Should()
             .BeEquivalentTo(expected);

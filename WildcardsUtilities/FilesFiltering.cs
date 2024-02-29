@@ -60,9 +60,10 @@ public static class FilesFiltering
         .Distinct();
 
         // Retrieves the inclusive file name filters.
-        var inclusiveFileNameFilters = fileNameFilters.Where(f => !f.StartsWith('!'));
+        var inclusiveFileNameFilters = fileNameFilters.Where(f => !f.StartsWith(ExclusionPrefix));
 
-        var exclusiveFileRegexes =
+        // Retrieves the exclusive file name filters converted to regexes.
+        var exclusiveFileNameRegexes =
             from f in fileNameFilters
             where f.StartsWith(ExclusionPrefix)
             select ToRegex(f);
@@ -97,7 +98,7 @@ public static class FilesFiltering
 
         // Retrieves filtered files inside the root directory.
         var files = inclusiveFileNameFilters
-            .SelectMany(filter => GetFilesByFileFilter(root, filter, exclusiveFileRegexes));
+            .SelectMany(filter => GetFilesByFileFilter(root, filter, exclusiveFileNameRegexes));
 
         // Removes duplicates.
         return files.Concat(filesInFolders).DistinctBy(f => f.FullName);
