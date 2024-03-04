@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Akka" Version="1.5.16" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\WildcardsUtilities.Common\WildcardsUtilities.Common.csproj" />
   </ItemGroup>
 

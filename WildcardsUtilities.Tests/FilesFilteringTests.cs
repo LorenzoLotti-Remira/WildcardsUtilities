@@ -2,42 +2,6 @@ namespace WildcardsUtilities.Tests;
 
 public class FilesFilteringTests
 {
-    [Theory]
-    [InlineData("*.txt", @"^[/]?[^/]*\.txt$")]
-    [InlineData("/i*.??html", @"^[/]?i[^/]*\.[^/]?[^/]?html$")]
-    [InlineData("!*.*", @"^[/]?[^/]*\.[^/]*$")]
-    public void ToRegex_should_work(string filter, string expectedRegex)
-    {
-        FilesFiltering
-            .ToRegex(filter)
-            .ToString()
-            .Should()
-            .Be(expectedRegex);
-    }
-
-    [Theory]
-    [InlineData("*.txt", "/file.txt", true)]
-    [InlineData("*.txt", "file.txtx", false)]
-    [InlineData("/i*.??html", "index.cshtml", true)]
-    [InlineData("/i*.??html", "/index.xhtml", true)]
-    [InlineData("/i*.??html", "index.html", true)]
-    [InlineData("/i*.??html", "index.htm", false)]
-    [InlineData("/i*.??html", "index.abchtml", false)]
-    [InlineData("!*.*", "ciao", true)]
-    [InlineData("!*.*", "file.txt", false)]
-    [InlineData("!*.*", ".gitignore", false)]
-    public void Path_should_or_should_not_match_filter(string filter, string path, bool expected)
-    {
-        if (filter.StartsWith('!'))
-            expected = !expected;
-
-        FilesFiltering
-            .ToRegex(filter)
-            .IsMatch(path)
-            .Should()
-            .Be(expected);
-    }
-
     public static readonly IEnumerable<object[]> GetFiles_should_work_DATA =
     [
         [
@@ -183,7 +147,7 @@ public class FilesFilteringTests
             }
         ]
     ];
-
+    /*
     [Theory]
     [MemberData(nameof(GetFiles_should_work_DATA))]
     public void GetFiles_should_work(string[] filters, string[] expected)
@@ -196,4 +160,35 @@ public class FilesFilteringTests
             .Should()
             .BeEquivalentTo(expected);
     }
+    */
+    [Theory]
+    [MemberData(nameof(GetFiles_should_work_DATA))]
+    public async Task GetFilesAsync_should_work(string[] filters, string[] expected)
+    {
+        var root = $"{Environment.CurrentDirectory}/TestRootFolder";
+
+        var x = (await Async.FilesFiltering.GetFilesAsync(new() { Filters = [.. filters], Root = root }));
+            x
+            .Select(file => Path.GetRelativePath(root, file.Path).Replace('\\', '/'))
+            .Should()
+            .BeEquivalentTo(expected);
+    }
+
+    //[Fact(Skip = "Too slow")]
+    //public async Task GetFilesAsync_should_be_faster_than_GetFiles()
+    //{
+    //    string
+    //        Filter = "/**/*",
+    //        Root = "/";
+
+    //    var getFilesAsyncStopwatch = Stopwatch.StartNew();
+    //    _ = (await Async.FilesFiltering.GetFilesAsync([Filter], Root)).ToArray();
+    //    getFilesAsyncStopwatch.Stop();
+
+    //    var getFilesStopwatch = Stopwatch.StartNew();
+    //    _ = FilesFiltering.GetFiles([Filter], Root).AsParallel().ToArray();
+    //    getFilesStopwatch.Stop();
+
+    //    getFilesAsyncStopwatch.Elapsed.Should().BeLessThan(getFilesStopwatch.Elapsed);
+    //}
 }

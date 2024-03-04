@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34408.163
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WildcardsUtilities", "WildcardsUtilities\WildcardsUtilities.csproj", "{1623E8A1-2522-4113-AB13-82413F0019C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WildcardsUtilities", "WildcardsUtilities\WildcardsUtilities.csproj", "{1623E8A1-2522-4113-AB13-82413F0019C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WildcardsUtilities.Tests", "WildcardsUtilities.Tests\WildcardsUtilities.Tests.csproj", "{7E3E83E2-C374-43D8-826F-B3D8A4FAA983}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WildcardsUtilities.Tests", "WildcardsUtilities.Tests\WildcardsUtilities.Tests.csproj", "{7E3E83E2-C374-43D8-826F-B3D8A4FAA983}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WildcardsUtilities.Async", "WildcardsUtilities.Async\WildcardsUtilities.Async.csproj", "{1AD6733C-85D5-4D7B-8E29-EEA2FF7D25A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WildcardsUtilities.Common", "WildcardsUtilities.Common\WildcardsUtilities.Common.csproj", "{7F3D4A66-4F34-4E72-922E-8C1B67276C83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{7E3E83E2-C374-43D8-826F-B3D8A4FAA983}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E3E83E2-C374-43D8-826F-B3D8A4FAA983}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E3E83E2-C374-43D8-826F-B3D8A4FAA983}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AD6733C-85D5-4D7B-8E29-EEA2FF7D25A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AD6733C-85D5-4D7B-8E29-EEA2FF7D25A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AD6733C-85D5-4D7B-8E29-EEA2FF7D25A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AD6733C-85D5-4D7B-8E29-EEA2FF7D25A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F3D4A66-4F34-4E72-922E-8C1B67276C83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F3D4A66-4F34-4E72-922E-8C1B67276C83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F3D4A66-4F34-4E72-922E-8C1B67276C83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F3D4A66-4F34-4E72-922E-8C1B67276C83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

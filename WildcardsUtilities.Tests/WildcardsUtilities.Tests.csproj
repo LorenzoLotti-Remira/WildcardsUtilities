@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WildcardsUtilities.Async\WildcardsUtilities.Async.csproj" />
     <ProjectReference Include="..\WildcardsUtilities\WildcardsUtilities.csproj" />
   </ItemGroup>
 	
