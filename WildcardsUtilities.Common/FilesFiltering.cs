@@ -193,7 +193,7 @@ public static class FilesFiltering
                 fileInfo.Exists &&
                 regex.IsMatch(fileInfo.Name) &&
                 !exclusiveRegexes.AnyMatch(fileInfo.Name)
-            let metadata = new FileMetadata(path, fileInfo.Attributes, [])
+            let metadata = new FileMetadata(path, fileInfo.Attributes)
             select filesMappingPredicate(metadata) ? filesMappingFunc(metadata) : metadata;
     }
 

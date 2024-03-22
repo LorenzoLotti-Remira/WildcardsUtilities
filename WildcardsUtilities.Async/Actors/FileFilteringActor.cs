@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
 
 namespace WildcardsUtilities.Async.Actors;
 
@@ -54,9 +55,17 @@ internal sealed class FileFilteringActor : ReceiveActor
             },
             fileInfo =>
             {
-                using var file = File.OpenRead(fileInfo.Path);
-                return fileInfo with { Checksum = [.. SHA1.HashData(file)] };
-            }
+                try
+                {
+                    using var file = File.OpenRead(fileInfo.Path);
+                    return fileInfo with { Checksum = [.. SHA1.HashData(file)] };
+                }
+                catch
+                {
+                    return fileInfo;
+                }
+            },
+            fileInfo => options.ComputeChecksum
         )
     );
 }

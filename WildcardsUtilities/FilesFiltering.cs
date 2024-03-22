@@ -1,7 +1,7 @@
 ﻿namespace WildcardsUtilities;
                                     
 public static class FilesFiltering
-{/*
+{
     /// <summary>
     /// Yields every file that matches a specified set of wildcard filters.
     /// </summary>
@@ -11,14 +11,25 @@ public static class FilesFiltering
     /// <exception cref="ArgumentNullException"/>
     /// <exception cref="ArgumentException"/>
     /// <exception cref="DirectoryNotFoundException"/>
-    public static IEnumerable<FileInfo> GetFiles(string[] filters, string root) =>
+    public static IEnumerable<Common.ChecksummedFileInfo> GetFiles(Common.FilesFilteringOptions options) =>
         Common.FilesFiltering.GetFiles
         (
-            filters,
-            root,
+            options,
             Enumerable.SelectMany,
             Enumerable.SelectMany,
-            GetFiles
+            GetFiles,
+            fileInfo =>
+            {
+                try
+                {
+                    using var file = File.OpenRead(fileInfo.Path);
+                    return fileInfo with { Checksum = [.. SHA1.HashData(file)] };
+                }
+                catch
+                {
+                    return fileInfo;
+                }
+            },
+            fileInfo => options.ComputeChecksum
         );
-    */
 }

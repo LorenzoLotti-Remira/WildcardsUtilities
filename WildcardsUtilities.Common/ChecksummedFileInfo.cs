@@ -3,6 +3,6 @@
 public record ChecksummedFileInfo
 (
     string Path,
-    FileAttributes Attributes,
-    ImmutableArray<byte> Checksum
+    FileAttributes Attributes = default,
+    ImmutableArray<byte>? Checksum = null
 );

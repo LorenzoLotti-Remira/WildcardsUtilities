@@ -1,4 +1,4 @@
 ﻿global using System.Runtime.CompilerServices;
-global using System.Text.RegularExpressions;
+global using System.Security.Cryptography;
 
 [assembly: InternalsVisibleTo("WildcardsUtilities.Tests")]
