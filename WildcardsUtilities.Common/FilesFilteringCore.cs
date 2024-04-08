@@ -1,6 +1,6 @@
 ﻿namespace WildcardsUtilities.Common;
 
-public static class FilesFiltering
+public static class FilesFilteringCore
 {
     private static readonly EnumerationOptions _enumerationOptions = new()
     {
@@ -145,9 +145,17 @@ public static class FilesFiltering
     {
         var regex = ToRegex(folderNameFilter);
 
-        IEnumerable<string> paths = HasWildcards(folderNameFilter) ?
-            Directory.EnumerateDirectories(rootDirectory, "*", _enumerationOptions) :
-            [rootDirectory + PathSeparator + folderNameFilter];
+        IEnumerable<string> paths;
+
+        if (HasWildcards(folderNameFilter))
+        {
+            if (Directory.Exists(rootDirectory))
+                paths = Directory.EnumerateDirectories(rootDirectory, "*", _enumerationOptions);
+            else
+                paths = [];
+        }
+        else
+            paths = [rootDirectory + PathSeparator + folderNameFilter];
 
         var dirs =
             from path in paths
@@ -182,9 +190,17 @@ public static class FilesFiltering
     {
         var regex = ToRegex(fileNameFilter);
 
-        IEnumerable<string> paths = HasWildcards(fileNameFilter) ?
-            Directory.EnumerateFiles(directory, "*", _enumerationOptions) :
-            [directory + PathSeparator + fileNameFilter];
+        IEnumerable<string> paths;
+
+        if (HasWildcards(fileNameFilter))
+        {
+            if (Directory.Exists(directory))
+                paths = Directory.EnumerateFiles(directory, "*", _enumerationOptions);
+            else
+                paths = [];
+        }
+        else
+            paths = [directory + PathSeparator + fileNameFilter];
 
         return
             from path in paths

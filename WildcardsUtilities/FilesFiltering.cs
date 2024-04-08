@@ -12,7 +12,7 @@ public static class FilesFiltering
     /// <exception cref="ArgumentException"/>
     /// <exception cref="DirectoryNotFoundException"/>
     public static IEnumerable<Common.ChecksummedFileInfo> GetFiles(Common.FilesFilteringOptions options) =>
-        Common.FilesFiltering.GetFiles
+        Common.FilesFilteringCore.GetFiles
         (
             options,
             Enumerable.SelectMany,

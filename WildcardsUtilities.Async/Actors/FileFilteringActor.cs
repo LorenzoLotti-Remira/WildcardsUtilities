@@ -38,7 +38,7 @@ internal sealed class FileFilteringActor : ReceiveActor
 
     private void Search(Common.FilesFilteringOptions options) => Collect
     (
-        Common.FilesFiltering.GetFiles
+        Common.FilesFilteringCore.GetFiles
         (
             options,
             Common.FlatMap.ForEach,

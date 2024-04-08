@@ -152,7 +152,7 @@ public class FilesFilteringTests
             }
         ]
     ];
-    
+
     [Theory]
     [MemberData(nameof(GetFiles_should_work_DATA))]
     public void GetFiles_should_work(string[] filters, string[] expected) =>
@@ -161,7 +161,7 @@ public class FilesFilteringTests
             .Select(file => Path.GetRelativePath(_testRoot, file.Path).Replace('\\', '/'))
             .Should()
             .BeEquivalentTo(expected);
-    
+
     [Theory]
     [MemberData(nameof(GetFiles_should_work_DATA))]
     public async Task GetFilesAsync_should_work(string[] filters, string[] expected) =>
