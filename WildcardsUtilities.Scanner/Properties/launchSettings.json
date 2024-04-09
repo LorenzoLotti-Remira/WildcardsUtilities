@@ -1,7 +1,8 @@
 {
   "profiles": {
     "WildcardsUtilities.Scanner": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "-f **/*.* !**/????.*"
     }
   }
 }

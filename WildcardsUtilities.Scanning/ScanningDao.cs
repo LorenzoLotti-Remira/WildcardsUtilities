@@ -23,6 +23,8 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
     public async ValueTask<SnapshotDbItem> AddNewSnapshotAsync
         (Func<ValueTask<IEnumerable<ChecksummedFileInfo>>> scanningAsyncFunc)
     {
+        const int ChunkSize = 1000;
+
         var snapshot = new SnapshotDbItem
         {
             SnapshotId = SnapshotId.New()
@@ -66,7 +68,7 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
         var files = await scanningTask;
         await snapshotInsertionTask;
 
-        var drivesVolumesWithFileAndPathDbItems =
+        var drivesVolumesWithFileAndPathDbItemsChunks =
         (
             from file in files
             join driveVolume in drivesVolumes on
@@ -95,56 +97,60 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
                 FileDbItem = fileDbItem
             }
         )
-        .ToArray();
+        .Chunk(ChunkSize);
 
-        drivesVolumes =
-            from association in drivesVolumesWithFileAndPathDbItems
-            select association.DriveVolume;
-
-
-        var driveDbItems =
-        (
-            from driveVolume in drivesVolumes
-            select driveVolume.Drive.DbItem
-        )
-        .DistinctBy(d => d.DriveId);
-
-        await context.Drives.BulkInsertAsync
-        (
-            driveDbItems,
-            new BulkOperationOptions<DriveDbItem> { InsertIfNotExists = true }
-        );
+        foreach (var chunk in drivesVolumesWithFileAndPathDbItemsChunks)
+        {
+            drivesVolumes =
+                from association in chunk
+                select association.DriveVolume;
 
 
-        var volumeDbItems =
-        (
-            from driveVolume in drivesVolumes
-            select driveVolume.Volume.DbItem
-        )
-        .DistinctBy(d => d.VolumeId);
+            var driveDbItems =
+            (
+                from driveVolume in drivesVolumes
+                select driveVolume.Drive.DbItem
+            )
+            .DistinctBy(d => d.DriveId);
 
-        await context.Volumes.BulkMergeAsync(volumeDbItems);
-
-
-        var pathDbItems =
-        (
-            from association in drivesVolumesWithFileAndPathDbItems
-            select association.PathDbItem
-        )
-        .DistinctBy(p => p.PathId);
-
-        await context.Paths.BulkInsertAsync
-        (
-            pathDbItems,
-            new BulkOperationOptions<PathDbItem> { InsertIfNotExists = true }
-        );
+            await context.Drives.BulkInsertAsync
+            (
+                driveDbItems,
+                new BulkOperationOptions<DriveDbItem> { InsertIfNotExists = true }
+            );
 
 
-        var fileDbItems =
-            from association in drivesVolumesWithFileAndPathDbItems
-            select association.FileDbItem;
+            var volumeDbItems =
+            (
+                from driveVolume in drivesVolumes
+                select driveVolume.Volume.DbItem
+            )
+            .DistinctBy(d => d.VolumeId);
 
-        await context.Files.BulkInsertAsync(fileDbItems);
+            await context.Volumes.BulkMergeAsync(volumeDbItems);
+
+
+            var pathDbItems =
+            (
+                from association in chunk
+                select association.PathDbItem
+            )
+            .DistinctBy(p => p.PathId);
+
+            await context.Paths.BulkInsertAsync
+            (
+                pathDbItems,
+                new BulkOperationOptions<PathDbItem> { InsertIfNotExists = true }
+            );
+
+
+            var fileDbItems =
+                from association in chunk
+                select association.FileDbItem;
+
+            await context.Files.BulkInsertAsync(fileDbItems);
+        }
+
         return snapshot;
     }
 
