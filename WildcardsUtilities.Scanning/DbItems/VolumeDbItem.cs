@@ -2,7 +2,7 @@
 
 public class VolumeDbItem
 {
-    public string VolumeId { get; set; } = string.Empty;
-    public string DriveId { get; set; } = string.Empty;
+    public VolumeId VolumeId { get; set; }
+    public DriveId DriveId { get; set; }
     public string Label { get; set; } = string.Empty;
 }

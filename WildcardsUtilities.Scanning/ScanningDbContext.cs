@@ -9,6 +9,9 @@ public class ScanningDbContext(DbContextOptions<ScanningDbContext> options) : Db
     public DbSet<DriveDbItem> Drives { get; set; }
     public DbSet<VolumeDbItem> Volumes { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder options) =>
+        options.UseStronglyTypeConverters();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Primary keys.

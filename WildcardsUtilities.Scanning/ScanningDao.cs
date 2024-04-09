@@ -25,7 +25,7 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
     {
         var snapshot = new SnapshotDbItem
         {
-            SnapshotId = Guid.NewGuid()
+            SnapshotId = SnapshotId.New()
         };
 
         var scanningTask = scanningAsyncFunc();
@@ -38,10 +38,10 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
             let partition = new ManagementObject((string)volumePartition["Antecedent"])
             join disk in GetManagementObjects("Win32_DiskDrive") on
                 (uint)partition["DiskIndex"] equals (uint)disk["Index"]
-            let volumeId = (string)volume["VolumeSerialNumber"]
+            let volumeId = new VolumeId((string)volume["VolumeSerialNumber"])
             let driveDbItem = new DriveDbItem
             {
-                DriveId = (string)disk["SerialNumber"],
+                DriveId = new((string)disk["SerialNumber"]),
                 Model = (string)disk["Model"]
             }
             let volumeDbItem = new VolumeDbItem
@@ -76,10 +76,11 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
             let pathDbItem = new PathDbItem
             {
                 Name = pathName,
-                PathId = HashStringToGuid(pathName)
+                PathId = new(HashStringToGuid(pathName))
             }
             let fileDbItem = new FileDbItem
             {
+                FileId = FileId.New(),
                 Attributes = file.Attributes,
                 Checksum = file.Checksum?.ToArray(),
                 Name = Path.GetFileName(file.Path),
@@ -93,7 +94,8 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
                 PathDbItem = pathDbItem,
                 FileDbItem = fileDbItem
             }
-        ).ToArray();
+        )
+        .ToArray();
 
         drivesVolumes =
             from association in drivesVolumesWithFileAndPathDbItems
@@ -146,7 +148,7 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
         return snapshot;
     }
 
-    public async ValueTask<uint> GetFileCount(Guid snapshotId)
+    public async ValueTask<uint> GetFileCount(SnapshotId snapshotId)
     {
         await using var context = await contextFactory.CreateDbContextAsync();
 

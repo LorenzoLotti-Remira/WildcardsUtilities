@@ -2,7 +2,7 @@
 
 public class DriveDbItem
 {
-    public string DriveId { get; set; } = string.Empty;
+    public DriveId DriveId { get; set; }
     public string Model { get; set; } = string.Empty;
 
 }

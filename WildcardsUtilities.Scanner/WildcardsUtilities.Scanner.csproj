@@ -24,10 +24,11 @@
     <ProjectReference Include="..\WildcardsUtilities.Scanning\WildcardsUtilities.Scanning.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="db\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	<MakeDir Directories="$(OutDir)\db" />
+  	<Exec Command="
+      dotnet ef migrations add InitialCreate --no-build
+	  dotnet ef database update --no-build" />
+  </Target>
+	
 </Project>

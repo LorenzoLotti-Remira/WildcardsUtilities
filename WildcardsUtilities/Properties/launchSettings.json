@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WildcardsUtilities": {
+      "commandName": "Project",
+      "commandLineArgs": "-d D -f **/*.sln **/*.?sproj"
+    }
+  }
+}

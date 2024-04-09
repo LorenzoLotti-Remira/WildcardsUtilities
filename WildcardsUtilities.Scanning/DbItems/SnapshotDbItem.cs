@@ -2,6 +2,6 @@
 
 public class SnapshotDbItem
 {
-    public Guid SnapshotId { get; set; }
+    public SnapshotId SnapshotId { get; set; }
     public DateTime Date { get; set; } = DateTime.Now;
 }

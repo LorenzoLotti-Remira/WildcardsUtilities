@@ -34,16 +34,17 @@ public sealed class ScannerService
             var table = new DataTable();
             table.Columns.Add("Snapshot");
             table.Columns.Add("Execution time");
-            table.Columns.Add("Scanned files");
+            table.Columns.Add("Matching files");
             table.Rows.Add(snapshot.SnapshotId, $"{snapshotCreationTime} s", fileCount);
 
             var consoleTable = ConsoleTable.From(table);
             consoleTable.Options.EnableCount = false;
             consoleTable.Write();
         }
-        catch
+        catch (Exception e)
         {
             Console.WriteLine("ERROR: an error occurred during the snapshot creation.");
+            Console.WriteLine(e);
             throw;
         }
 

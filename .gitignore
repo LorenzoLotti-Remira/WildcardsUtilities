@@ -365,4 +365,3 @@ FodyWeavers.xsd
 ##################################################
 
 /WildcardsUtilities.Scanner/Migrations
-/WildcardsUtilities.Scanner/db/**.db

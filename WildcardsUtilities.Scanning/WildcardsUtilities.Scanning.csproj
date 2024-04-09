@@ -12,6 +12,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Strongly" Version="1.5.1" />
+    <PackageReference Include="Strongly.EFCore" Version="1.5.1" />
     <PackageReference Include="System.Management" Version="8.0.0" />
     <PackageReference Include="Z.EntityFramework.Extensions.EFCore" Version="8.102.2.1" />
   </ItemGroup>
