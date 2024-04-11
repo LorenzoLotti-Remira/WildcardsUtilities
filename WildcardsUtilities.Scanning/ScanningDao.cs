@@ -23,7 +23,8 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
     public async ValueTask<SnapshotDbItem> AddNewSnapshotAsync
         (Func<ValueTask<IEnumerable<ChecksummedFileInfo>>> scanningAsyncFunc)
     {
-        const int ChunkSize = 1000;
+        const int ChunkSize = 10_000;
+        const uint GCCollectInterval = 5;
 
         var snapshot = new SnapshotDbItem
         {
@@ -99,8 +100,16 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
         )
         .Chunk(ChunkSize);
 
+        uint currentChunkNumber = 1;
+
         foreach (var chunk in drivesVolumesWithFileAndPathDbItemsChunks)
         {
+            if (currentChunkNumber % GCCollectInterval == 0)
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive);
+
+            currentChunkNumber++;
+
+
             drivesVolumes =
                 from association in chunk
                 select association.DriveVolume;

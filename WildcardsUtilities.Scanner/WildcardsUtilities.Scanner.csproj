@@ -26,9 +26,10 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
 	<MakeDir Directories="$(OutDir)\db" />
+	<Exec ContinueOnError="true" Command="dotnet tool install --global dotnet-ef"></Exec>
   	<Exec Command="
-      dotnet ef migrations add InitialCreate --no-build
-	  dotnet ef database update --no-build" />
+      dotnet ef migrations add InitialCreate --no-build --configuration $(Configuration)
+	  dotnet ef database update --no-build --configuration $(Configuration)" />
   </Target>
 	
 </Project>
