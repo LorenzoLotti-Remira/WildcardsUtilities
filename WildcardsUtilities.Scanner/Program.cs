@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Reflection;
 using WildcardsUtilities.Scanner;
+using WildcardsUtilities.Scanner.Extensions;
 
 var builder = Host.CreateApplicationBuilder();
 
@@ -10,8 +11,9 @@ builder.Logging.SetMinimumLevel(LogLevel.None);
 builder.Services
     .AddDbContextFactory<ScanningDbContext>
     (
-        options => options.UseSqlite
+        options => options.Use
         (
+            "Sqlite",
             $"Data Source={builder.Environment.ContentRootPath}/db/scanning.db",
             b => b.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name)
         )
