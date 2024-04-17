@@ -1,13 +1,10 @@
-﻿using System.Reflection;
-using System.Runtime.CompilerServices;
-
-namespace WildcardsUtilities.Scanner.Extensions;
+﻿namespace WildcardsUtilities.Scanner.Extensions;
 
 public static class ReflectionExtensions
 {
     public static bool HasAttribute<T>(this ICustomAttributeProvider attributeProvider)
         where T : Attribute =>
-            attributeProvider.IsDefined(typeof(ExtensionAttribute), false);
+            attributeProvider.IsDefined(typeof(T), false);
 
     public static IEnumerable<MethodInfo> EnumerateExtensionMethods(this Type type) =>
         AppDomain

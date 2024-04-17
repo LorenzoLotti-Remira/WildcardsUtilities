@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WildcardsUtilities.Scanner": {
+      "commandName": "Project",
+      "commandLineArgs": "-d D"
+    }
+  }
+}

@@ -1,24 +1,15 @@
-﻿
-using System.Data;
-
-namespace WildcardsUtilities.Scanner;
+﻿namespace WildcardsUtilities.Scanner;
 
 public sealed class ScannerService
 (
     IScanningDao dao,
     IHostApplicationLifetime appLifetime,
-    IScannerOptions? options
+    IScannerOptions options
 )
 : BackgroundService
 {
     protected async override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (options is null)
-        {
-            appLifetime.StopApplication();
-            return;
-        }
-
         try
         {
             Console.WriteLine("Scanning files...");
@@ -41,11 +32,9 @@ public sealed class ScannerService
             consoleTable.Options.EnableCount = false;
             consoleTable.Write();
         }
-        catch (Exception e)
+        catch
         {
             Console.WriteLine("ERROR: an error occurred during the snapshot creation.");
-            Console.WriteLine(e);
-            throw;
         }
 
         appLifetime.StopApplication();

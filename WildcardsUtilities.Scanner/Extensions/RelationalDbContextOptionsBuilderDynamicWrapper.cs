@@ -3,7 +3,7 @@
 internal sealed class RelationalDbContextOptionsBuilderDynamicWrapper(dynamic wrappedObject) :
     IRelationalDbContextOptionsBuilderLike
 {
-    private IRelationalDbContextOptionsBuilderLike With(Action<dynamic> optionsAction)
+    private RelationalDbContextOptionsBuilderDynamicWrapper With(Action<dynamic> optionsAction)
     {
         try
         {

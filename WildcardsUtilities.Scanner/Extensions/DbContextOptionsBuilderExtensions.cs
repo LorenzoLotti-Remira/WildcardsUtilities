@@ -8,7 +8,6 @@ public static class DbContextOptionsBuilderExtensions
         string provider,
         string? connectionString,
         Action<IRelationalDbContextOptionsBuilderLike>? providerOptionsAction = null
-
     )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(provider);
@@ -17,7 +16,9 @@ public static class DbContextOptionsBuilderExtensions
 
         var optionsActionParamName =
             nameof(providerOptionsAction).Replace(nameof(provider), provider);
+
         var x = typeof(DbContextOptionsBuilder).EnumerateExtensionMethods();
+
         var targetMethod =
         (
             from method in typeof(DbContextOptionsBuilder).EnumerateExtensionMethods()
@@ -30,7 +31,7 @@ public static class DbContextOptionsBuilderExtensions
                 parameters[1].Name == nameof(connectionString) &&
                 parameters[1].ParameterType == typeof(string) &&
                 parameters[2].Name!.Equals(optionsActionParamName, StringComparison.OrdinalIgnoreCase) &&
-                parameters[2].ParameterType.IsAssignableTo(typeof(Action))
+                parameters[2].ParameterType.GetGenericTypeDefinition() == typeof(Action<>)
             )
             orderby parameters.Length
             select method

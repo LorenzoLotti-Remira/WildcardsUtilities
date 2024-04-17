@@ -1,5 +1,4 @@
-﻿
-namespace WildcardsUtilities.Scanner;
+﻿namespace WildcardsUtilities.Scanner;
 
 public interface IScannerOptions
 {
@@ -7,4 +6,5 @@ public interface IScannerOptions
     IEnumerable<char> ExcludedDrives { get; }
     IEnumerable<string> Filters { get; }
     bool SkipChecksumComputations { get; }
+    DatabaseConnectionInfo? DatabaseInfo { get; }
 }

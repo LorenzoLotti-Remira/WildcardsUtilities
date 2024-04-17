@@ -2,8 +2,15 @@
 global using ConsoleTables;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.EntityFrameworkCore.Storage;
+global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Hosting;
+global using Microsoft.Extensions.Logging;
+global using System.Data;
+global using System.Reflection;
+global using System.Runtime.CompilerServices;
 global using WildcardsUtilities.Async;
 global using WildcardsUtilities.Common;
+global using WildcardsUtilities.Scanner;
+global using WildcardsUtilities.Scanner.Extensions;
 global using WildcardsUtilities.Scanning;
