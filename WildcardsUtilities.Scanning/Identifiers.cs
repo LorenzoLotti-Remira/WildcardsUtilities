@@ -16,3 +16,6 @@ public partial struct VolumeId;
 
 [Strongly(StronglyType.String)]
 public partial struct DriveId;
+
+[Strongly]
+public partial struct SnapshotGroupId;

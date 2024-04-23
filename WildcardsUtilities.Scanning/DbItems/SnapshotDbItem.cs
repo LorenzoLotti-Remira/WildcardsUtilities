@@ -3,5 +3,6 @@
 public class SnapshotDbItem
 {
     public SnapshotId SnapshotId { get; set; }
-    public DateTime Date { get; set; } = DateTime.Now;
+    public DateTime StartDateTime { get; set; } = DateTime.Now;
+    public DateTime? EndDateTime { get; set; } = null;
 }

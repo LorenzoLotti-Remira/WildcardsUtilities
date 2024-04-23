@@ -1,6 +1,7 @@
-﻿namespace WildcardsUtilities.Scanner;
+﻿namespace WildcardsUtilities.Scanner.Options;
 
-public sealed class ScannerOptions : IScannerOptions
+[Verb("scan", true, HelpText = "Scan files into a snapshot.")]
+internal sealed class ScanOptions : DatabaseDependentOperationOptions, IScanOptions
 {
     [Option("no-checksum", HelpText = "Skip checksum computations.")]
     public bool SkipChecksumComputations { get; set; }
@@ -13,10 +14,4 @@ public sealed class ScannerOptions : IScannerOptions
 
     [Option('f', "filters", Default = new string[] { "**/*" }, Min = 1, HelpText = "Input filters to be applied.")]
     public IEnumerable<string> Filters { get; set; } = [];
-
-    [Option("database", Min = 2, Max = 2, HelpText = "Input database provider and connection string.")]
-    public IEnumerable<string> DatabaseInfo { get; set; } = [];
-
-    DatabaseConnectionInfo? IScannerOptions.DatabaseInfo => DatabaseInfo.Any() ?
-        new(DatabaseInfo.First(), DatabaseInfo.Last()) : null;
 }

@@ -8,5 +8,6 @@ public class FileDbItem
     public VolumeId VolumeId { get; set; }
     public string Name { get; set; } = string.Empty;
     public byte[]? Checksum { get; set; } = null;
+    public long Size { get; set; }
     public FileAttributes Attributes { get; set; }
 }
