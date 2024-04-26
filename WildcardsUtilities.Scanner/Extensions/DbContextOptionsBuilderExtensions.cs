@@ -12,48 +12,43 @@ public static class DbContextOptionsBuilderExtensions
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(provider);
 
-        var expectedMethodName = nameof(Use) + provider;
+        void InvokeWrapped(dynamic options) =>
+            providerOptionsAction?.Invoke
+                (new RelationalDbContextOptionsBuilderDynamicWrapper(options));
 
-        var optionsActionParamName =
-            nameof(providerOptionsAction).Replace(nameof(provider), provider);
+        try
+        {
+            return provider.ToLower() switch
+            {
+                "sqlite" => builder.UseSqlite
+                (
+                    connectionString,
+                    options => InvokeWrapped(options)
+                ),
 
-        var x = typeof(DbContextOptionsBuilder).EnumerateExtensionMethods();
+                "sqlserver" => builder.UseSqlServer
+                (
+                    connectionString,
+                    options => InvokeWrapped(options)
+                ),
 
-        var targetMethod =
-        (
-            from method in typeof(DbContextOptionsBuilder).EnumerateExtensionMethods()
-            let parameters = method.GetParameters()
-            where
+                "mysql" or "mariadb" => builder.UseMySql
+                (
+                    connectionString,
+                    ServerVersion.AutoDetect(connectionString),
+                    options => InvokeWrapped(options)
+                ),
+
+                _ => throw new NotImplementedException()
+            };
+        }
+        catch
+        {
+            throw new ArgumentException
             (
-                method.Name.Equals(expectedMethodName, StringComparison.OrdinalIgnoreCase) &&
-                parameters.Length >= 3 &&
-                parameters.Skip(3).All(p => p.IsOptional) &&
-                parameters[1].Name == nameof(connectionString) &&
-                parameters[1].ParameterType == typeof(string) &&
-                parameters[2].Name!.Equals(optionsActionParamName, StringComparison.OrdinalIgnoreCase) &&
-                parameters[2].ParameterType.GetGenericTypeDefinition() == typeof(Action<>)
-            )
-            orderby parameters.Length
-            select method
-        )
-        .FirstOrDefault() ?? throw new ArgumentException
-        (
-            $"'{provider}' database provider is not supported",
-            nameof(provider)
-        );
-
-        targetMethod.Invoke
-        (
-            null,
-            [
-                builder,
-                connectionString,
-
-                (dynamic options) => providerOptionsAction?.Invoke
-                    (new RelationalDbContextOptionsBuilderDynamicWrapper(options))
-            ]
-        );
-
-        return builder;
+                $"'{provider}' database provider is not supported",
+                nameof(provider)
+            );
+        }
     }
 }

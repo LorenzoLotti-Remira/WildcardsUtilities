@@ -1,4 +1,5 @@
-﻿namespace WildcardsUtilities.Scanner.PlainTextTables;
+﻿
+namespace WildcardsUtilities.Scanner.PlainTextTables;
 
 internal class TababularPlainTextTableGenerator : IPlainTextTableGenerator
 {
@@ -7,4 +8,7 @@ internal class TababularPlainTextTableGenerator : IPlainTextTableGenerator
 
     public string ToPlainText(IEnumerable<IReadOnlyDictionary<string, object>> table) =>
         _formatter.FormatDictionaries(table.Select(d => d.ToDictionary()));
+
+    public string ToPlainText(IEnumerable objectsTable) =>
+        _formatter.FormatObjects(objectsTable);
 }

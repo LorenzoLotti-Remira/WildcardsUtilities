@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace WildcardsUtilities.Tests;
 
 public class FilesFilteringTests

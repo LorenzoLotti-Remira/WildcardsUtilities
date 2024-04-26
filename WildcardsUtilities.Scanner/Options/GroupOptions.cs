@@ -31,8 +31,8 @@ internal sealed class GroupOptions : DatabaseDependentOperationOptions, IGroupOp
     IEnumerable<SnapshotId> IGroupOptions.SnapshotsToUnlink =>
         AsSnapshotIdsWhereParsable(SnapshotsToUnlink);
 
-    private static IEnumerable<SnapshotId> AsSnapshotIdsWhereParsable(IEnumerable<string> strings) =>
-        strings
+    private static IEnumerable<SnapshotId>
+        AsSnapshotIdsWhereParsable(IEnumerable<string> strings) => strings
             .Select(s => SnapshotId.TryParse(s, out var id) ? id : default(SnapshotId?))
             .Where(id => id is not null)
             .Select(id => id!.Value);

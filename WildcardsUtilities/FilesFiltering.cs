@@ -1,5 +1,5 @@
 ﻿namespace WildcardsUtilities;
-                                    
+
 public static class FilesFiltering
 {
     /// <summary>
@@ -11,25 +11,26 @@ public static class FilesFiltering
     /// <exception cref="ArgumentNullException"/>
     /// <exception cref="ArgumentException"/>
     /// <exception cref="DirectoryNotFoundException"/>
-    public static IEnumerable<Common.ChecksummedFileInfo> GetFiles(Common.FilesFilteringOptions options) =>
-        Common.FilesFilteringCore.GetFiles
-        (
-            options,
-            Enumerable.SelectMany,
-            Enumerable.SelectMany,
-            GetFiles,
-            fileInfo =>
-            {
-                try
+    public static IEnumerable<Common.ChecksummedFileInfo> GetFiles
+        (Common.FilesFilteringOptions options) =>
+            Common.FilesFilteringCore.GetFiles
+            (
+                options,
+                Enumerable.SelectMany,
+                Enumerable.SelectMany,
+                GetFiles,
+                fileInfo =>
                 {
-                    using var file = File.OpenRead(fileInfo.Path);
-                    return fileInfo with { Checksum = [.. SHA1.HashData(file)] };
-                }
-                catch
-                {
-                    return fileInfo;
-                }
-            },
-            fileInfo => options.ComputeChecksum
-        );
+                    try
+                    {
+                        using var file = File.OpenRead(fileInfo.Path);
+                        return fileInfo with { Checksum = [.. SHA1.HashData(file)] };
+                    }
+                    catch
+                    {
+                        return fileInfo;
+                    }
+                },
+                fileInfo => options.ComputeChecksum
+            );
 }

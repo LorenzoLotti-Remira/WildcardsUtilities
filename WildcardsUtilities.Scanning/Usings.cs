@@ -1,5 +1,6 @@
 ﻿global using Microsoft.EntityFrameworkCore;
 global using Strongly;
+global using System.Linq.Expressions;
 global using System.Management;
 global using System.Security.Cryptography;
 global using System.Text;

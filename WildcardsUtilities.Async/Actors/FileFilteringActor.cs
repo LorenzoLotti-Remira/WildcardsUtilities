@@ -1,7 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
-
-namespace WildcardsUtilities.Async.Actors;
+﻿namespace WildcardsUtilities.Async.Actors;
 
 internal sealed class FileFilteringActor : ReceiveActor
 {

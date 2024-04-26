@@ -1,22 +1,43 @@
-﻿using Microsoft.EntityFrameworkCore.Infrastructure;
-
-namespace WildcardsUtilities.Scanner;
+﻿namespace WildcardsUtilities.Scanner;
 
 public class EnsureCreatedService<TDbContext>(TDbContext dbContext) : BackgroundService
     where TDbContext : DbContext
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) =>
-        await SafeEnsureCreatedAsync(dbContext.Database, stoppingToken);
+        await EnsureCreatedAsync(dbContext, stoppingToken).ConfigureAwait(false);
 
-    private static async ValueTask<bool> SafeEnsureCreatedAsync
+    private static async ValueTask<bool> EnsureCreatedAsync
     (
-        DatabaseFacade db,
+        DbContext dbContext,
         CancellationToken cancellationToken = default
     )
     {
         try
         {
-            return await db.EnsureCreatedAsync(cancellationToken);
+            var result = await dbContext
+                .Database
+                .EnsureCreatedAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            var views =
+                from prop in typeof(TDbContext).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                where
+                (
+                    prop.PropertyType.IsGenericType &&
+                    prop.PropertyType.GetGenericTypeDefinition() == typeof(IQueryable<>)
+                )
+                let query = (prop.GetValue(dbContext) as IQueryable)!.ToQueryString()
+                select $"create view {prop.Name} as {query}";
+
+            foreach (var view in views)
+            {
+                await dbContext
+                    .Database
+                    .ExecuteSqlRawAsync(view, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            return result;
         }
         catch
         {
@@ -28,6 +49,6 @@ public class EnsureCreatedService<TDbContext>(TDbContext dbContext) : Background
 public static class ServiceCollectionEnsureCreatedServiceExtensions
 {
     public static IServiceCollection AddEnsureCreatedService<TDbContext>
-        (this IServiceCollection serviceCollection) where TDbContext : DbContext =>
-            serviceCollection.AddHostedService<EnsureCreatedService<TDbContext>>();
+        (this IServiceCollection services) where TDbContext : DbContext =>
+            services.AddHostedService<EnsureCreatedService<TDbContext>>();
 }

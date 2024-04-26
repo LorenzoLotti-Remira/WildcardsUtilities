@@ -15,18 +15,24 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
     private static IEnumerable<ManagementObject> GetManagementObjects(string className) =>
         new ManagementObjectSearcher($"SELECT * FROM {className}").Get().Cast<ManagementObject>();
 
-    private async ValueTask<ScanningDbContext> GetDbContextAsync()
+    private async ValueTask<ScanningDbContext> GetDbContextAsync
+        (CancellationToken cancellationToken = default)
     {
-        var context = await contextFactory.CreateDbContextAsync();
+        var context = await contextFactory
+            .CreateDbContextAsync(cancellationToken)
+            .ConfigureAwait(false);
 
-        if (await context.Database.CanConnectAsync())
+        if (await context.Database.CanConnectAsync(cancellationToken).ConfigureAwait(false))
             return context;
 
         throw new InvalidOperationException("Unable to connect to the database.");
     }
 
     public async ValueTask<SnapshotDbItem?> AddNewSnapshotAsync
-        (Func<ValueTask<IEnumerable<ChecksummedFileInfo>>> scanningAsyncFunc)
+    (
+        Func<CancellationToken, ValueTask<IEnumerable<ChecksummedFileInfo>>> scanningAsyncFunc,
+        CancellationToken cancellationToken = default
+    )
     {
         const int ChunkSize = 10_000;
         const uint GCCollectInterval = 5;
@@ -36,12 +42,15 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
             SnapshotId = SnapshotId.New()
         };
 
-        var scanningTask = scanningAsyncFunc();
-        await using var context = await GetDbContextAsync();
+        var scanningTask = scanningAsyncFunc(cancellationToken);
+        await using var context = await GetDbContextAsync(cancellationToken).ConfigureAwait(false);
 
         try
         {
-            await context.Snapshots.SingleInsertAsync(snapshot);
+            await context
+                .Snapshots
+                .SingleInsertAsync(snapshot, cancellationToken)
+                .ConfigureAwait(false);
 
             var drivesVolumes =
                 from volumePartition in GetManagementObjects("Win32_LogicalDiskToPartition")
@@ -74,7 +83,7 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
                     }
                 };
 
-            var files = await scanningTask;
+            var files = await scanningTask.ConfigureAwait(false);
 
             var drivesVolumesWithFileAndPathDbItemsChunks =
             (
@@ -133,8 +142,10 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
                 await context.Drives.BulkInsertAsync
                 (
                     driveDbItems,
-                    new BulkOperationOptions<DriveDbItem> { InsertIfNotExists = true }
-                );
+                    new BulkOperationOptions<DriveDbItem> { InsertIfNotExists = true },
+                    cancellationToken
+                )
+                .ConfigureAwait(false);
 
 
                 var volumeDbItems =
@@ -144,7 +155,10 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
                 )
                 .DistinctBy(d => d.VolumeId);
 
-                await context.Volumes.BulkMergeAsync(volumeDbItems);
+                await context
+                    .Volumes
+                    .BulkMergeAsync(volumeDbItems, cancellationToken)
+                    .ConfigureAwait(false);
 
 
                 var pathDbItems =
@@ -157,19 +171,29 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
                 await context.Paths.BulkInsertAsync
                 (
                     pathDbItems,
-                    new BulkOperationOptions<PathDbItem> { InsertIfNotExists = true }
-                );
+                    new BulkOperationOptions<PathDbItem> { InsertIfNotExists = true },
+                    cancellationToken
+                )
+                .ConfigureAwait(false);
 
 
                 var fileDbItems =
                     from association in chunk
                     select association.FileDbItem;
 
-                await context.Files.BulkInsertAsync(fileDbItems);
+                await context
+                    .Files
+                    .BulkInsertAsync(fileDbItems, cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             snapshot.EndDateTime = DateTime.Now;
-            await context.Snapshots.SingleUpdateAsync(snapshot);
+
+            await context
+                .Snapshots
+                .SingleUpdateAsync(snapshot, cancellationToken)
+                .ConfigureAwait(false);
+
             return snapshot;
         }
         catch
@@ -178,9 +202,13 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
         }
     }
 
-    public async ValueTask<SnapshotGroupDbItem?> GetSnapshotGroupAsync(string name)
+    public async ValueTask<SnapshotGroupDbItem?> GetSnapshotGroupAsync
+    (
+        string name,
+        CancellationToken cancellationToken = default
+    )
     {
-        await using var context = await GetDbContextAsync();
+        await using var context = await GetDbContextAsync(cancellationToken).ConfigureAwait(false);
 
         return await
         (
@@ -188,16 +216,25 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
             where snapshotGroup.Name == name
             select snapshotGroup
         )
-        .SingleOrDefaultAsync();
+        .SingleOrDefaultAsync(cancellationToken)
+        .ConfigureAwait(false);
     }
 
-    public async ValueTask<bool> UpsertSnapshotGroupAsync(SnapshotGroupDbItem snapshotGroup)
+    public async ValueTask<bool> UpsertSnapshotGroupAsync
+    (
+        SnapshotGroupDbItem snapshotGroup,
+        CancellationToken cancellationToken = default
+    )
     {
-        await using var context = await GetDbContextAsync();
+        await using var context = await GetDbContextAsync(cancellationToken).ConfigureAwait(false);
 
         try
         {
-            await context.SnapshotGroups.SingleMergeAsync(snapshotGroup);
+            await context
+                .SnapshotGroups
+                .SingleMergeAsync(snapshotGroup, cancellationToken)
+                .ConfigureAwait(false);
+
             return true;
         }
         catch
@@ -206,14 +243,19 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
         }
     }
 
-    public async ValueTask<bool> DisbandSnapshotGroupAsync(SnapshotGroupId id)
+    public async ValueTask<bool> DisbandSnapshotGroupAsync
+    (
+        SnapshotGroupId id,
+        CancellationToken cancellationToken = default
+    )
     {
-        await using var context = await GetDbContextAsync();
+        await using var context = await GetDbContextAsync(cancellationToken).ConfigureAwait(false);
 
         return await context
             .SnapshotGroups
             .Where(g => g.SnapshotGroupId == id)
-            .DeleteFromQueryAsync() > 0;
+            .DeleteFromQueryAsync(cancellationToken)
+            .ConfigureAwait(false) > 0;
     }
 
     private static IEnumerable<GroupSnapshotRelationDbItem> AsGroupSnapshotRelations
@@ -225,9 +267,14 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
                 SnapshotId = snapshotId
             };
 
-    public async Task LinkSnapshotsAsync(SnapshotGroupId groupId, IEnumerable<SnapshotId> snapshotsIds)
+    public async Task LinkSnapshotsAsync
+    (
+        SnapshotGroupId groupId,
+        IEnumerable<SnapshotId> snapshotsIds,
+        CancellationToken cancellationToken = default
+    )
     {
-        await using var context = await GetDbContextAsync();
+        await using var context = await GetDbContextAsync(cancellationToken).ConfigureAwait(false);
 
         if (!snapshotsIds.Any())
             return;
@@ -239,13 +286,20 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
             {
                 InsertIfNotExists = true,
                 ErrorMode = ErrorModeType.IgnoreAndContinue
-            }
-        );
+            },
+            cancellationToken
+        )
+        .ConfigureAwait(false);
     }
 
-    public async Task UnlinkSnapshotsAsync(SnapshotGroupId groupId, IEnumerable<SnapshotId> snapshotsIds)
+    public async Task UnlinkSnapshotsAsync
+    (
+        SnapshotGroupId groupId,
+        IEnumerable<SnapshotId> snapshotsIds,
+        CancellationToken cancellationToken = default
+    )
     {
-        await using var context = await GetDbContextAsync();
+        await using var context = await GetDbContextAsync(cancellationToken).ConfigureAwait(false);
 
         if (!snapshotsIds.Any())
             return;
@@ -256,13 +310,19 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
             new BulkOperationOptions<GroupSnapshotRelationDbItem>
             {
                 ErrorMode = ErrorModeType.IgnoreAndContinue
-            }
-        );
+            },
+            cancellationToken
+        )
+        .ConfigureAwait(false);
     }
 
-    public async ValueTask<SnapshotId[]> GetLinkedSnapshotsAsync(SnapshotGroupId groupId)
+    public async ValueTask<SnapshotId[]> GetLinkedSnapshotsAsync
+    (
+        SnapshotGroupId groupId,
+        CancellationToken cancellationToken = default
+    )
     {
-        await using var context = await GetDbContextAsync();
+        await using var context = await GetDbContextAsync(cancellationToken).ConfigureAwait(false);
 
         return await
         (
@@ -270,22 +330,26 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
             where relation.SnapshotGroupId == groupId
             select relation.SnapshotId
         )
-        .ToArrayAsync();
+        .ToArrayAsync(cancellationToken)
+        .ConfigureAwait(false);
     }
 
-    public async ValueTask<string[]> GetSnapshotGroupNamesAsync()
+    public async ValueTask<string[]> GetSnapshotGroupNamesAsync
+        (CancellationToken cancellationToken = default)
     {
-        await using var context = await GetDbContextAsync();
+        await using var context = await GetDbContextAsync(cancellationToken).ConfigureAwait(false);
 
         return await context
             .SnapshotGroups
             .Select(group => group.Name)
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async ValueTask<IReadOnlyDictionary<SnapshotGroupDbItem, SnapshotId[]>> GetSnapshotGroupDetailsAsync()
+    public async ValueTask<IReadOnlyDictionary<SnapshotGroupDbItem, SnapshotId[]>>
+        GetSnapshotGroupDetailsAsync(CancellationToken cancellationToken)
     {
-        await using var context = await GetDbContextAsync();
+        await using var context = await GetDbContextAsync(cancellationToken).ConfigureAwait(false);
 
         return await
         (
@@ -307,17 +371,24 @@ public class ScanningDao(IDbContextFactory<ScanningDbContext> contextFactory) : 
                 where snapshot is not null
                 select snapshot.Value
             )
-            .ToArray()
-        );
+            .ToArray(),
+            cancellationToken
+        )
+        .ConfigureAwait(false);
     }
 
-    public async ValueTask<uint> GetFileCountAsync(SnapshotId snapshotId)
+    public async ValueTask<uint> GetFileCountAsync
+    (
+        SnapshotId snapshotId,
+        CancellationToken cancellationToken = default
+    )
     {
-        await using var context = await GetDbContextAsync();
+        await using var context = await GetDbContextAsync(cancellationToken).ConfigureAwait(false);
 
         return (uint)await context
             .Files
             .Where(file => file.SnapshotId == snapshotId)
-            .CountAsync();
+            .CountAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 }

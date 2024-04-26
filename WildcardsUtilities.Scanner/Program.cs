@@ -1,17 +1,39 @@
-﻿var scannerOptions = ParseCommandLineArguments(args);
+﻿var pressedCancelKey = false;
+
+Console.CancelKeyPress += delegate
+{
+    if (!pressedCancelKey)
+        Console.WriteLine("Cancelling execution...");
+
+    pressedCancelKey = true;
+};
+
+var scannerOptions = ParseCommandLineArguments(args);
 
 if (scannerOptions is null)
     return;
 
-var builder = Host.CreateApplicationBuilder
-(
-    new HostApplicationBuilderSettings
-    {
-        ContentRootPath = AppDomain.CurrentDomain.BaseDirectory
-    }
-);
+HostApplicationBuilder builder;
 
-builder!.Logging.SetMinimumLevel(LogLevel.None);
+try
+{
+    builder = Host.CreateApplicationBuilder
+    (
+        new HostApplicationBuilderSettings
+        {
+            ContentRootPath = AppDomain.CurrentDomain.BaseDirectory
+        }
+    );
+}
+catch
+{
+    Console.WriteLine
+        ("ERROR: unable to start the application. The application files may be corrupted.");
+
+    return;
+}
+
+builder.Logging.SetMinimumLevel(LogLevel.None);
 builder.Services.AddSingleton<IPlainTextTableGenerator, TababularPlainTextTableGenerator>();
 
 switch (scannerOptions)
@@ -54,12 +76,6 @@ switch (scannerOptions)
             .AddSingleton<IScanningDao, ScanningDao>()
             .AddHostedService<ScannerService>();
 
-        var providersAssemblyNames = builder
-            .Configuration
-            .GetSection("ProvidersAssemblies")
-            .Get<string[]>() ?? [];
-
-        LoadAssemblies(providersAssemblyNames);
         break;
 
     case IDatabasesOptions dbConfiguringOptions:
@@ -71,7 +87,7 @@ switch (scannerOptions)
 }
 
 using var host = builder.Build();
-await host.RunAsync();
+await host.RunAsync().ConfigureAwait(false);
 
 static bool ApplyDbInfo(DbContextOptionsBuilder options, DatabaseConnectionInfo dbInfo)
 {
@@ -115,10 +131,3 @@ static IScannerOptions? ParseCommandLineArguments(string[] args) =>
             .ToArray()
     )
     .Value as IScannerOptions;
-
-static void LoadAssemblies(string[] assemblyNames)
-{
-    foreach (var name in assemblyNames)
-        if (AppDomain.CurrentDomain.GetAssemblies().All(a => a.FullName != name))
-            Assembly.Load(name);
-}

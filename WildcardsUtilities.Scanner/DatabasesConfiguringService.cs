@@ -1,7 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Nodes;
-
-namespace WildcardsUtilities.Scanner;
+﻿namespace WildcardsUtilities.Scanner;
 
 public class DatabasesConfiguringService
 (
@@ -15,28 +12,35 @@ public class DatabasesConfiguringService
     protected async override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         const string DatabasesPropertyName = "Databases";
+        var appSettingsFile = environment.ContentRootFileProvider.GetFileInfo("appsettings.json");
 
-        var appSettingsFile = environment
-            .ContentRootFileProvider
-            .GetFileInfo("appsettings.json")
-            .PhysicalPath;
-
-        if (appSettingsFile is null)
+        if (appSettingsFile.PhysicalPath is null)
+        {
+            Console.WriteLine("ERROR: unable to access the configuration file.");
             return;
+        }
 
-        var root = JsonNode
-            .Parse(await File.ReadAllTextAsync(appSettingsFile, stoppingToken))?
-            .AsObject();
+        JsonObject? root = null;
 
-        if (root is null)
-            return;
+        if (appSettingsFile.Exists)
+        {
+            var appSettingsContent = await File
+                .ReadAllTextAsync(appSettingsFile.PhysicalPath, stoppingToken)
+                .ConfigureAwait(false);
 
-        var databases = root.ContainsKey(DatabasesPropertyName) ?
-            root[DatabasesPropertyName]!.Deserialize<List<DatabaseConnectionInfo>>() :
-            [];
+            root = JsonNode.Parse(appSettingsContent)?.AsObject();
+        }
 
-        if (databases is null)
-            return;
+        root ??= [];
+        List<DatabaseConnectionInfo>? databases = null;
+
+        try
+        {
+            databases = root[DatabasesPropertyName]!.Deserialize<List<DatabaseConnectionInfo>>();
+        }
+        catch { }
+
+        databases ??= [];
 
         if (options.NewDatabase is not null)
         {
@@ -53,10 +57,11 @@ public class DatabasesConfiguringService
 
         await File.WriteAllTextAsync
         (
-            appSettingsFile,
+            appSettingsFile.PhysicalPath,
             root.ToJsonString(new() { WriteIndented = true }),
             stoppingToken
-        );
+        )
+        .ConfigureAwait(false);
 
         if (options.ListDatabases)
         {

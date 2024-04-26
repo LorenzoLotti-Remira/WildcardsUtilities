@@ -3,8 +3,8 @@
 public sealed record FilesFilteringOptions
 {
     public ImmutableArray<string> Filters { get; init; } =
-        [FilesFilteringCore.PathWildcard + FilesFilteringCore.PathSeparator + FilesFilteringCore.StringWildcard];
+        [Wildcards.PathWildcard + Wildcards.PathSeparator + Wildcards.StringWildcard];
 
-    public string Root { get; init; } = FilesFilteringCore.PathSeparator;
+    public string Root { get; init; } = Wildcards.PathSeparator;
     public bool ComputeChecksum { get; init; } = false;
 }

@@ -3,4 +3,5 @@
 public interface IPlainTextTableGenerator
 {
     string ToPlainText(IEnumerable<IReadOnlyDictionary<string, object>> table);
+    string ToPlainText(IEnumerable objectsTable);
 }

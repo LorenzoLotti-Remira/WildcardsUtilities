@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-
-namespace WildcardsUtilities.Scanning;
+﻿namespace WildcardsUtilities.Scanning;
 
 public static class EntityFrameworkCoreExtensions
 {
