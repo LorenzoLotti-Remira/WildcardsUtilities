@@ -1,4 +1,6 @@
-﻿var pressedCancelKey = false;
+﻿[assembly: AssemblyCopyright("")]
+
+var pressedCancelKey = false;
 
 Console.CancelKeyPress += delegate
 {
