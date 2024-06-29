@@ -22,5 +22,9 @@ Some General Examples
 fisc databases -a [identifier] [provider] [connetionstring]
 fisc databases list
 ```
-These commands will first create a databases, by default its an Sqlite server to save every scan. So the first thing i add is the identifier, that is the name, next is the provider such as SQL or PostgreSQL at last the connection string.
+These commands will first create a databases, by default its an Sqlite server to save every scan. 
+- So the first thing i add is the identifier, that is the name,
+- Next is the provider such as SQL or PostgreSQL
+- Last the connection string.
+
 The second command displays all the databases saved.
