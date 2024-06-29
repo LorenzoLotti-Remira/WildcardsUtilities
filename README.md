@@ -15,14 +15,14 @@ Some examples:
 fisc databases --help
 fisc group --help
 ```
-Every option has a description that describes what it does, if it's an input what is needed to execute it.
+Every option has a description that explains what it does. If it requires input, the description will specify what is needed.
 
 Some General Examples
 ```bash
 fisc databases -a [identifier] [provider] [connetionstring]
 fisc databases list
 ```
-These commands will first create a databases, by default its an Sqlite server to save every scan. 
+By default, this creates an SQLite database to save every scan.
 - So the first thing i add is the identifier, that is the name,
 - Next is the provider such as SQL or PostgreSQL
 - Last the connection string.
