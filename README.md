@@ -1,10 +1,10 @@
-#SETUP
+# SETUP
 
 In this project the command prefix is **fisc**.
 
 To actually use this, you can open the prompt inside the realease build of the executable project, and write ./fisc or edit the "PATH" enviroment variable and add a new variable relative to the previous folder.
 
-#USAGE
+# USAGE
 
 For any informations about the verbs avaible by the program write `fisc --help`, this will give you all the informations you will need to use the program.\
 Once decided the verb proceed with the option. For any informations about option avaible in the specified verb write `fisc [verb] --help`.
