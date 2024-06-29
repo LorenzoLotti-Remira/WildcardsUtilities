@@ -2,7 +2,7 @@
 
 In this project the command prefix is **fisc**.
 
-To use this, you can open the prompt inside the realease build of the executable project, and write ./fisc or edit the "PATH" enviroment variable and add a new variable relative to the previous folder.
+To use this, open the prompt inside the realease build of the executable project, and write ./fisc or edit the "PATH" enviroment variable and add a new variable relative to the previous folder.
 
 # USAGE
 
