@@ -2,7 +2,9 @@
 
 In this project the command prefix is **fisc**.
 
-To use this, open the prompt inside the realease build of the executable project, and write ./fisc or edit the "PATH" enviroment variable and add a new variable relative to the previous folder.
+To use this:
+- Open the prompt inside the realease build of the executable project
+- Edit the "PATH" enviroment variable and add a new variable relative to the previous folder.
 
 # USAGE
 
@@ -13,7 +15,7 @@ Some examples:
 fisc databases --help
 fisc group --help
 ```
-Every option has a description that describes, if it's an input what is needed, else what the option does.
+Every option has a description that describes what it does, if it's an input what is needed to execute it.
 
 Some General Examples
 ```bash
