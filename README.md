@@ -17,7 +17,8 @@ fisc group --help
 ```
 Every option has a description that explains what it does. If it requires input, the description will specify what is needed.
 
-Some General Examples
+## Some General Examples
+### Database example
 ```bash
 fisc databases -a [identifier] [provider] [connetionstring]
 fisc databases list
